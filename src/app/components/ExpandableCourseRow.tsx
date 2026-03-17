@@ -104,12 +104,7 @@ export const ExpandableCourseRow = React.forwardRef<HTMLDivElement, ExpandableCo
 
           {/* Course info */}
           <div className="flex-1 min-w-0 mr-3">
-            <div className="flex items-center gap-2 truncate">
-              <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">
-                J{course.jour} · #{course.item}
-              </span>
-              <span className="truncate text-[14px] font-medium text-foreground">{course.name}</span>
-            </div>
+            <div className="truncate text-[14px] font-medium text-foreground">{course.name}</div>
             <div className="text-[12px] text-muted-foreground">{course.speciality}</div>
           </div>
 
