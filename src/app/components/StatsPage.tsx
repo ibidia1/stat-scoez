@@ -215,6 +215,8 @@ const mockCourseRadarData: { [key: string]: Array<{ tag: string; mastery: number
 interface Course {
   name: string;
   speciality: string;
+  jour: number;
+  item: number;
   mastery: number;
   toRedo: number;
   qcmDone: number;
@@ -222,48 +224,102 @@ interface Course {
 }
 
 const mockCourses: Course[] = [
-  { name: "AVC", speciality: "Neurologie", mastery: 62, toRedo: 38, qcmDone: 75, lastReviewed: "2025-01-08" },
-  { name: "Céphalées", speciality: "Neurologie", mastery: 68, toRedo: 32, qcmDone: 82, lastReviewed: "2025-01-10" },
-  { name: "Épilepsies", speciality: "Neurologie", mastery: 58, toRedo: 42, qcmDone: 65, lastReviewed: "2025-01-06" },
-  { name: "États confusionnels", speciality: "Psychiatrie", mastery: 70, toRedo: 30, qcmDone: 88, lastReviewed: "2025-01-12" },
-  { name: "Schizophrénie", speciality: "Psychiatrie", mastery: 68, toRedo: 32, qcmDone: 70, lastReviewed: "2025-01-07" },
-  { name: "Troubles de l'humeur", speciality: "Psychiatrie", mastery: 72, toRedo: 28, qcmDone: 80, lastReviewed: "2025-01-11" },
-  { name: "Troubles anxieux", speciality: "Psychiatrie", mastery: 75, toRedo: 25, qcmDone: 92, lastReviewed: "2025-01-13" },
-  { name: "Œil rouge", speciality: "Ophtalmologie", mastery: 78, toRedo: 22, qcmDone: 95, lastReviewed: "2025-01-14" },
-  { name: "IVAS", speciality: "ORL", mastery: 82, toRedo: 18, qcmDone: 105, lastReviewed: "2025-01-15" },
-  { name: "Cancer du cavum", speciality: "ORL", mastery: 65, toRedo: 35, qcmDone: 72, lastReviewed: "2025-01-09" },
-  { name: "CBP", speciality: "Pneumologie", mastery: 82, toRedo: 18, qcmDone: 130, lastReviewed: "2025-01-13" },
-  { name: "Infections respiratoires basses", speciality: "Pneumologie", mastery: 70, toRedo: 30, qcmDone: 88, lastReviewed: "2025-01-11" },
-  { name: "Tuberculose pulmonaire", speciality: "Pneumologie", mastery: 80, toRedo: 20, qcmDone: 125, lastReviewed: "2025-01-12" },
-  { name: "Asthme", speciality: "Pneumologie", mastery: 68, toRedo: 32, qcmDone: 85, lastReviewed: "2025-01-10" },
-  { name: "BPCO", speciality: "Pneumologie", mastery: 65, toRedo: 35, qcmDone: 78, lastReviewed: "2025-01-08" },
-  { name: "SCA", speciality: "Cardiologie-CCVT", mastery: 82, toRedo: 18, qcmDone: 95, lastReviewed: "2025-01-14" },
-  { name: "Douleur thoracique", speciality: "Cardiologie-CCVT", mastery: 88, toRedo: 12, qcmDone: 102, lastReviewed: "2025-01-15" },
-  { name: "HTA", speciality: "Cardiologie-CCVT", mastery: 88, toRedo: 12, qcmDone: 110, lastReviewed: "2025-01-13" },
-  { name: "Endocardite infectieuse", speciality: "Cardiologie-CCVT", mastery: 80, toRedo: 20, qcmDone: 90, lastReviewed: "2025-01-10" },
-  { name: "MVTE", speciality: "Cardiologie-CCVT", mastery: 75, toRedo: 25, qcmDone: 85, lastReviewed: "2025-01-12" },
-  { name: "Dysphagies", speciality: "Gastro-entérologie", mastery: 70, toRedo: 30, qcmDone: 77, lastReviewed: "2025-01-10" },
-  { name: "Ictères", speciality: "Gastro-entérologie", mastery: 68, toRedo: 32, qcmDone: 85, lastReviewed: "2025-01-11" },
-  { name: "Hémorragies digestives", speciality: "Gastro-entérologie", mastery: 78, toRedo: 22, qcmDone: 98, lastReviewed: "2025-01-13" },
-  { name: "Appendicite aiguë", speciality: "Chirurgie générale", mastery: 85, toRedo: 15, qcmDone: 112, lastReviewed: "2025-01-14" },
-  { name: "Cancer colorectal", speciality: "Chirurgie générale", mastery: 70, toRedo: 30, qcmDone: 82, lastReviewed: "2025-01-10" },
-  { name: "Cancer du sein", speciality: "Gynécologie-Obstétrique", mastery: 80, toRedo: 20, qcmDone: 105, lastReviewed: "2025-01-13" },
-  { name: "Contraception", speciality: "Gynécologie-Obstétrique", mastery: 90, toRedo: 10, qcmDone: 120, lastReviewed: "2025-01-15" },
-  { name: "Infections urinaires", speciality: "Urologie", mastery: 88, toRedo: 12, qcmDone: 115, lastReviewed: "2025-01-15" },
-  { name: "Troubles acido-basiques", speciality: "Néphrologie", mastery: 55, toRedo: 45, qcmDone: 70, lastReviewed: "2025-01-06" },
-  { name: "Insuffisance rénale aiguë", speciality: "Néphrologie", mastery: 50, toRedo: 50, qcmDone: 65, lastReviewed: "2025-01-03" },
-  { name: "Arrêt cardio-circulatoire", speciality: "Réanimation", mastery: 85, toRedo: 15, qcmDone: 120, lastReviewed: "2025-01-15" },
-  { name: "États septiques graves", speciality: "Réanimation", mastery: 78, toRedo: 22, qcmDone: 102, lastReviewed: "2025-01-14" },
-  { name: "Diabète sucré", speciality: "Endocrinologie", mastery: 65, toRedo: 35, qcmDone: 90, lastReviewed: "2025-01-14" },
-  { name: "Dyslipidémies", speciality: "Endocrinologie", mastery: 75, toRedo: 25, qcmDone: 95, lastReviewed: "2025-01-12" },
-  { name: "Méningite", speciality: "Infectiologie", mastery: 78, toRedo: 22, qcmDone: 105, lastReviewed: "2025-01-13" },
-  { name: "IST", speciality: "Infectiologie", mastery: 85, toRedo: 15, qcmDone: 118, lastReviewed: "2025-01-15" },
-  { name: "Hépatites virales", speciality: "Infectiologie", mastery: 82, toRedo: 18, qcmDone: 110, lastReviewed: "2025-01-14" },
-  { name: "Anémie", speciality: "Hématologie", mastery: 60, toRedo: 40, qcmDone: 88, lastReviewed: "2025-01-07" },
-  { name: "Transfusion sanguine", speciality: "Hématologie", mastery: 55, toRedo: 45, qcmDone: 75, lastReviewed: "2025-01-05" },
-  { name: "Polyarthrite rhumatoïde", speciality: "Orthopédie-Rhumatologie", mastery: 70, toRedo: 30, qcmDone: 88, lastReviewed: "2025-01-10" },
-  { name: "Bronchiolite", speciality: "Pédiatrie", mastery: 80, toRedo: 20, qcmDone: 105, lastReviewed: "2025-01-13" },
-  { name: "Vaccinations", speciality: "Pédiatrie", mastery: 90, toRedo: 10, qcmDone: 125, lastReviewed: "2025-01-15" },
+  // ── JOUR 1 ──────────────────────────────────────────────────────────────────
+  // 🧠 Neurologie
+  { name: "AVC",                           speciality: "Neurologie",              jour: 1, item: 1,  mastery: 62, toRedo: 38, qcmDone: 75,  lastReviewed: "2025-01-08" },
+  { name: "Céphalées",                     speciality: "Neurologie",              jour: 1, item: 16, mastery: 68, toRedo: 32, qcmDone: 82,  lastReviewed: "2025-01-10" },
+  { name: "Épilepsies",                    speciality: "Neurologie",              jour: 1, item: 26, mastery: 58, toRedo: 42, qcmDone: 65,  lastReviewed: "2025-01-06" },
+  // 🧠 Psychiatrie
+  { name: "États confusionnels",           speciality: "Psychiatrie",             jour: 1, item: 29, mastery: 70, toRedo: 30, qcmDone: 88,  lastReviewed: "2025-01-12" },
+  { name: "Schizophrénie",                 speciality: "Psychiatrie",             jour: 1, item: 63, mastery: 55, toRedo: 45, qcmDone: 70,  lastReviewed: "2025-01-07" },
+  { name: "Troubles de l'humeur",          speciality: "Psychiatrie",             jour: 1, item: 70, mastery: 72, toRedo: 28, qcmDone: 80,  lastReviewed: "2025-01-11" },
+  { name: "Troubles anxieux",              speciality: "Psychiatrie",             jour: 1, item: 69, mastery: 75, toRedo: 25, qcmDone: 92,  lastReviewed: "2025-01-13" },
+  // 👁️ Ophtalmologie
+  { name: "Œil rouge",                     speciality: "Ophtalmologie",           jour: 1, item: 56, mastery: 78, toRedo: 22, qcmDone: 95,  lastReviewed: "2025-01-14" },
+  // 👂 ORL
+  { name: "IVAS",                          speciality: "ORL",                     jour: 1, item: 42, mastery: 82, toRedo: 18, qcmDone: 105, lastReviewed: "2025-01-15" },
+  { name: "Cancer du cavum",               speciality: "ORL",                     jour: 1, item: 12, mastery: 52, toRedo: 48, qcmDone: 60,  lastReviewed: "2025-01-05" },
+  // 🫁 Pneumologie – Allergologie
+  { name: "CBP",                           speciality: "Pneumologie",             jour: 1, item: 11, mastery: 82, toRedo: 18, qcmDone: 130, lastReviewed: "2025-01-13" },
+  { name: "Infections respiratoires basses", speciality: "Pneumologie",           jour: 1, item: 43, mastery: 70, toRedo: 30, qcmDone: 88,  lastReviewed: "2025-01-11" },
+  { name: "Tuberculose pulmonaire",        speciality: "Pneumologie",             jour: 1, item: 72, mastery: 80, toRedo: 20, qcmDone: 125, lastReviewed: "2025-01-12" },
+  { name: "Asthme",                        speciality: "Pneumologie",             jour: 1, item: 7,  mastery: 68, toRedo: 32, qcmDone: 85,  lastReviewed: "2025-01-10" },
+  { name: "BPCO",                          speciality: "Pneumologie",             jour: 1, item: 9,  mastery: 60, toRedo: 40, qcmDone: 78,  lastReviewed: "2025-01-08" },
+  // ❤️ Cardiologie – CCVT
+  { name: "SCA",                           speciality: "Cardiologie-CCVT",        jour: 1, item: 65, mastery: 82, toRedo: 18, qcmDone: 95,  lastReviewed: "2025-01-14" },
+  { name: "Douleur thoracique",            speciality: "Cardiologie-CCVT",        jour: 1, item: 22, mastery: 88, toRedo: 12, qcmDone: 102, lastReviewed: "2025-01-15" },
+  { name: "HTA",                           speciality: "Cardiologie-CCVT",        jour: 1, item: 38, mastery: 85, toRedo: 15, qcmDone: 110, lastReviewed: "2025-01-13" },
+  { name: "Endocardite infectieuse",       speciality: "Cardiologie-CCVT",        jour: 1, item: 25, mastery: 75, toRedo: 25, qcmDone: 90,  lastReviewed: "2025-01-10" },
+  { name: "Ischémie des membres",          speciality: "Cardiologie-CCVT",        jour: 1, item: 49, mastery: 65, toRedo: 35, qcmDone: 72,  lastReviewed: "2025-01-09" },
+  { name: "MVTE",                          speciality: "Cardiologie-CCVT",        jour: 1, item: 51, mastery: 75, toRedo: 25, qcmDone: 85,  lastReviewed: "2025-01-12" },
+  // 🍽️ Gastro-entérologie
+  { name: "Dysphagies",                    speciality: "Gastro-entérologie",      jour: 1, item: 24, mastery: 60, toRedo: 40, qcmDone: 68,  lastReviewed: "2025-01-07" },
+  { name: "Ictères",                       speciality: "Gastro-entérologie",      jour: 1, item: 41, mastery: 65, toRedo: 35, qcmDone: 75,  lastReviewed: "2025-01-09" },
+  { name: "Diarrhées chroniques",          speciality: "Gastro-entérologie",      jour: 1, item: 21, mastery: 70, toRedo: 30, qcmDone: 82,  lastReviewed: "2025-01-11" },
+  { name: "Ulcère gastro-duodénal",        speciality: "Gastro-entérologie",      jour: 1, item: 74, mastery: 72, toRedo: 28, qcmDone: 90,  lastReviewed: "2025-01-12" },
+  { name: "Hémorragies digestives",        speciality: "Gastro-entérologie",      jour: 1, item: 34, mastery: 78, toRedo: 22, qcmDone: 98,  lastReviewed: "2025-01-13" },
+  // 🔪 Chirurgie générale
+  { name: "Péritonite aiguë",              speciality: "Chirurgie générale",      jour: 1, item: 57, mastery: 68, toRedo: 32, qcmDone: 75,  lastReviewed: "2025-01-09" },
+  { name: "Appendicite aiguë",             speciality: "Chirurgie générale",      jour: 1, item: 4,  mastery: 85, toRedo: 15, qcmDone: 112, lastReviewed: "2025-01-14" },
+  { name: "Cancer colorectal",             speciality: "Chirurgie générale",      jour: 1, item: 15, mastery: 70, toRedo: 30, qcmDone: 82,  lastReviewed: "2025-01-10" },
+  { name: "Occlusion intestinale aiguë",   speciality: "Chirurgie générale",      jour: 1, item: 54, mastery: 62, toRedo: 38, qcmDone: 70,  lastReviewed: "2025-01-08" },
+  // 👩‍⚕️ Gynécologie – Obstétrique
+  { name: "Cancer du col",                 speciality: "Gynécologie-Obstétrique", jour: 1, item: 13, mastery: 72, toRedo: 28, qcmDone: 88,  lastReviewed: "2025-01-11" },
+  { name: "Cancer du sein",                speciality: "Gynécologie-Obstétrique", jour: 1, item: 14, mastery: 80, toRedo: 20, qcmDone: 105, lastReviewed: "2025-01-13" },
+  { name: "Contraception",                 speciality: "Gynécologie-Obstétrique", jour: 1, item: 18, mastery: 90, toRedo: 10, qcmDone: 120, lastReviewed: "2025-01-15" },
+  { name: "Grossesse extra-utérine",       speciality: "Gynécologie-Obstétrique", jour: 1, item: 32, mastery: 68, toRedo: 32, qcmDone: 82,  lastReviewed: "2025-01-10" },
+  { name: "Prééclampsie – éclampsie",      speciality: "Gynécologie-Obstétrique", jour: 1, item: 60, mastery: 58, toRedo: 42, qcmDone: 72,  lastReviewed: "2025-01-07" },
+  { name: "Métrorragies",                  speciality: "Gynécologie-Obstétrique", jour: 1, item: 53, mastery: 65, toRedo: 35, qcmDone: 78,  lastReviewed: "2025-01-09" },
+
+  // ── JOUR 2 ──────────────────────────────────────────────────────────────────
+  // 🟢 Urologie
+  { name: "Tumeurs de la prostate",        speciality: "Urologie",                jour: 2, item: 73, mastery: 72, toRedo: 28, qcmDone: 88,  lastReviewed: "2025-01-11" },
+  { name: "Lithiase urinaire",             speciality: "Urologie",                jour: 2, item: 50, mastery: 78, toRedo: 22, qcmDone: 95,  lastReviewed: "2025-01-13" },
+  { name: "Hématuries",                    speciality: "Urologie",                jour: 2, item: 33, mastery: 65, toRedo: 35, qcmDone: 72,  lastReviewed: "2025-01-09" },
+  { name: "Infections urinaires",          speciality: "Urologie",                jour: 2, item: 45, mastery: 88, toRedo: 12, qcmDone: 115, lastReviewed: "2025-01-15" },
+  // 🟢 Néphrologie
+  { name: "Troubles acido-basiques",       speciality: "Néphrologie",             jour: 2, item: 68, mastery: 55, toRedo: 45, qcmDone: 70,  lastReviewed: "2025-01-06" },
+  { name: "Dyskaliémies",                  speciality: "Néphrologie",             jour: 2, item: 71, mastery: 50, toRedo: 50, qcmDone: 65,  lastReviewed: "2025-01-04" },
+  { name: "Troubles de l'hydratation",     speciality: "Néphrologie",             jour: 2, item: 71, mastery: 52, toRedo: 48, qcmDone: 62,  lastReviewed: "2025-01-04" },
+  { name: "Œdèmes",                        speciality: "Néphrologie",             jour: 2, item: 55, mastery: 60, toRedo: 40, qcmDone: 75,  lastReviewed: "2025-01-07" },
+  { name: "Insuffisance rénale aiguë",     speciality: "Néphrologie",             jour: 2, item: 46, mastery: 48, toRedo: 52, qcmDone: 60,  lastReviewed: "2025-01-03" },
+  // 🔥 Réanimation
+  { name: "Intoxication",                  speciality: "Réanimation",             jour: 2, item: 48, mastery: 65, toRedo: 35, qcmDone: 80,  lastReviewed: "2025-01-09" },
+  { name: "Polytraumatisme",               speciality: "Réanimation",             jour: 2, item: 59, mastery: 68, toRedo: 32, qcmDone: 85,  lastReviewed: "2025-01-10" },
+  { name: "État de choc hémorragique",     speciality: "Réanimation",             jour: 2, item: 28, mastery: 72, toRedo: 28, qcmDone: 92,  lastReviewed: "2025-01-11" },
+  { name: "État de choc cardiogénique",    speciality: "Réanimation",             jour: 2, item: 27, mastery: 70, toRedo: 30, qcmDone: 88,  lastReviewed: "2025-01-11" },
+  { name: "États septiques graves",        speciality: "Réanimation",             jour: 2, item: 30, mastery: 78, toRedo: 22, qcmDone: 102, lastReviewed: "2025-01-14" },
+  { name: "Arrêt cardio-circulatoire",     speciality: "Réanimation",             jour: 2, item: 5,  mastery: 85, toRedo: 15, qcmDone: 120, lastReviewed: "2025-01-15" },
+  { name: "Brûlures cutanées",             speciality: "Réanimation",             jour: 2, item: 10, mastery: 55, toRedo: 45, qcmDone: 65,  lastReviewed: "2025-01-06" },
+  { name: "Traumatisme crânien",           speciality: "Réanimation",             jour: 2, item: 67, mastery: 62, toRedo: 38, qcmDone: 75,  lastReviewed: "2025-01-08" },
+  { name: "Comas",                         speciality: "Réanimation",             jour: 2, item: 17, mastery: 65, toRedo: 35, qcmDone: 78,  lastReviewed: "2025-01-09" },
+  { name: "Prise en charge d'une douleur aiguë", speciality: "Réanimation",      jour: 2, item: 61, mastery: 80, toRedo: 20, qcmDone: 105, lastReviewed: "2025-01-13" },
+  // 🧬 Endocrinologie
+  { name: "Insuffisance surrénalienne aiguë", speciality: "Endocrinologie",       jour: 2, item: 47, mastery: 55, toRedo: 45, qcmDone: 65,  lastReviewed: "2025-01-06" },
+  { name: "Hyperthyroïdie",                speciality: "Endocrinologie",          jour: 2, item: 39, mastery: 65, toRedo: 35, qcmDone: 80,  lastReviewed: "2025-01-09" },
+  { name: "Hypothyroïdie",                 speciality: "Endocrinologie",          jour: 2, item: 40, mastery: 68, toRedo: 32, qcmDone: 82,  lastReviewed: "2025-01-10" },
+  { name: "Dyslipidémies",                 speciality: "Endocrinologie",          jour: 2, item: 23, mastery: 75, toRedo: 25, qcmDone: 95,  lastReviewed: "2025-01-12" },
+  { name: "Diabète sucré",                 speciality: "Endocrinologie",          jour: 2, item: 20, mastery: 65, toRedo: 35, qcmDone: 90,  lastReviewed: "2025-01-14" },
+  // 🧬 Médecine Interne
+  { name: "Hypercalcémies",               speciality: "Médecine Interne",         jour: 2, item: 37, mastery: 55, toRedo: 45, qcmDone: 62,  lastReviewed: "2025-01-05" },
+  { name: "Purpura",                       speciality: "Médecine Interne",        jour: 2, item: 62, mastery: 60, toRedo: 40, qcmDone: 70,  lastReviewed: "2025-01-07" },
+  // 🦠 Infectiologie
+  { name: "Méningite",                     speciality: "Infectiologie",           jour: 2, item: 52, mastery: 78, toRedo: 22, qcmDone: 105, lastReviewed: "2025-01-13" },
+  { name: "IST",                           speciality: "Infectiologie",           jour: 2, item: 44, mastery: 85, toRedo: 15, qcmDone: 118, lastReviewed: "2025-01-15" },
+  { name: "Hépatites virales",             speciality: "Infectiologie",           jour: 2, item: 35, mastery: 80, toRedo: 20, qcmDone: 110, lastReviewed: "2025-01-14" },
+  // 🩸 Hématologie
+  { name: "Splénomégalies",               speciality: "Hématologie",              jour: 2, item: 64, mastery: 58, toRedo: 42, qcmDone: 68,  lastReviewed: "2025-01-06" },
+  { name: "Adénopathies superficielles",   speciality: "Hématologie",             jour: 2, item: 2,  mastery: 62, toRedo: 38, qcmDone: 75,  lastReviewed: "2025-01-08" },
+  { name: "Anémie",                        speciality: "Hématologie",             jour: 2, item: 3,  mastery: 60, toRedo: 40, qcmDone: 88,  lastReviewed: "2025-01-07" },
+  { name: "Transfusion sanguine",          speciality: "Hématologie",             jour: 2, item: 66, mastery: 52, toRedo: 48, qcmDone: 72,  lastReviewed: "2025-01-05" },
+  // 🦴 Orthopédie – Rhumatologie
+  { name: "Arthrite septique",             speciality: "Orthopédie-Rhumatologie", jour: 2, item: 6,  mastery: 65, toRedo: 35, qcmDone: 75,  lastReviewed: "2025-01-08" },
+  { name: "Fractures ouvertes de la jambe", speciality: "Orthopédie-Rhumatologie", jour: 2, item: 31, mastery: 70, toRedo: 30, qcmDone: 82, lastReviewed: "2025-01-10" },
+  { name: "Polyarthrite rhumatoïde",       speciality: "Orthopédie-Rhumatologie", jour: 2, item: 58, mastery: 68, toRedo: 32, qcmDone: 80,  lastReviewed: "2025-01-09" },
+  // 👶 Pédiatrie
+  { name: "Bronchiolite",                  speciality: "Pédiatrie",               jour: 2, item: 8,  mastery: 80, toRedo: 20, qcmDone: 105, lastReviewed: "2025-01-13" },
+  { name: "Déshydratation aiguë de l'enfant", speciality: "Pédiatrie",            jour: 2, item: 37, mastery: 72, toRedo: 28, qcmDone: 88,  lastReviewed: "2025-01-11" },
+  { name: "Vaccinations",                  speciality: "Pédiatrie",               jour: 2, item: 75, mastery: 90, toRedo: 10, qcmDone: 125, lastReviewed: "2025-01-15" },
 ];
 
 const weeklyProgressData = [
@@ -459,6 +515,7 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [filterType, setFilterType] = useState("toRedo");
   const [filterSpeciality, setFilterSpeciality] = useState("all"); // filtre spécialité Score QE
+  const [filterJour, setFilterJour] = useState("all"); // filtre jour J1/J2
   const [selectedSpec, setSelectedSpec] = useState("J1");
   const [selectedCourseForRadar, setSelectedCourseForRadar] = useState("all");
   const [comparisonMetric, setComparisonMetric] = useState<string | null>(null);
@@ -489,7 +546,8 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   const filteredCourses = mockCourses.filter(c => {
     const matchesQuery = c.name.toLowerCase().includes(query.toLowerCase());
     const matchesSpec = filterSpeciality === "all" || c.speciality === filterSpeciality;
-    return matchesQuery && matchesSpec;
+    const matchesJour = filterJour === "all" || c.jour === Number(filterJour);
+    return matchesQuery && matchesSpec && matchesJour;
   });
 
   // toRedo: plus urgent en premier (valeur haute = plus à refaire)
@@ -768,6 +826,8 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
         filterSpeciality={filterSpeciality}
         setFilterSpeciality={setFilterSpeciality}
         allSpecialities={allSpecialities}
+        filterJour={filterJour}
+        setFilterJour={setFilterJour}
         expandedCourseId={expandedCourseId}
         setExpandedCourseId={setExpandedCourseId}
         isDark={isDarkMode}
@@ -850,6 +910,7 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
 function TopCoursesSection({
   sortedCourses, displayCount, setDisplayCount, filterType, setFilterType,
   filterSpeciality, setFilterSpeciality, allSpecialities,
+  filterJour, setFilterJour,
   expandedCourseId, setExpandedCourseId, isDark, getHistoryForCourse,
   getPercentageColor, itemVariants, query, setQuery
 }: any) {
@@ -952,6 +1013,24 @@ function TopCoursesSection({
                     whileTap={{ scale: 0.98 }}
                   >
                     {count}
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Filter Jour */}
+              <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
+                {(["all", "1", "2"] as const).map((j) => (
+                  <motion.button
+                    key={j}
+                    onClick={() => setFilterJour(j)}
+                    className={`px-3 py-1.5 text-[13px] transition-all ${
+                      filterJour === j
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    } ${j !== "2" ? "border-r border-border" : ""}`}
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  >
+                    {j === "all" ? "Tous" : `J${j}`}
                   </motion.button>
                 ))}
               </div>
