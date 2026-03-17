@@ -487,7 +487,7 @@ const EnhancedDonutChart = ({ data, isDark }: { data: any[]; isDark: boolean }) 
     ? ["#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa", "#fb923c", "#f472b6"]
     : ["#4f7cff", "#059669", "#ff8f00", "#dc2626", "#8b5cf6", "#f97316", "#ec4899"];
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={220}>
       <PieChart id="pie-chart-specialty">
         <Pie key="pie" data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
           paddingAngle={5} dataKey="value" label={({ percentage }) => `${percentage}%`}>
@@ -631,14 +631,14 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
             <DescriptionWrapper>{selectedCourse.speciality} · Dernière révision: {selectedCourse.lastReviewed}</DescriptionWrapper>
           </HeaderWrapper>
           <div className="space-y-5 p-6 max-h-[70vh] overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div className="text-center">
-                <CircularProgress value={selectedCourse.mastery} size={110} strokeWidth={10} isDark={isDarkMode} />
-                <p className="text-sm text-muted-foreground mt-2">Maîtrise</p>
+                <CircularProgress value={selectedCourse.mastery} size={100} strokeWidth={10} isDark={isDarkMode} />
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2">Maîtrise</p>
               </div>
               <div className="text-center">
-                <CircularProgress value={100 - selectedCourse.toRedo} size={110} strokeWidth={10} isDark={isDarkMode} />
-                <p className="text-sm text-muted-foreground mt-2">Progression</p>
+                <CircularProgress value={100 - selectedCourse.toRedo} size={100} strokeWidth={10} isDark={isDarkMode} />
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2">Progression</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -722,18 +722,21 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   return (
     <motion.div className="space-y-6 pb-8" variants={containerVariants} initial="hidden" animate="visible">
       {/* En-tête */}
-      <motion.div variants={itemVariants} className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <motion.div variants={itemVariants} className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-foreground flex items-center gap-2">
-            <Activity className="text-primary" />
+          <h1 className="text-foreground flex items-center gap-2 text-xl sm:text-2xl">
+            <Activity className="text-primary" size={22} />
             Tableau de bord
           </h1>
-          <p className="text-sm text-muted-foreground">Suivez vos performances et identifiez vos axes d'amélioration</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Suivez vos performances et identifiez vos axes d'amélioration
+          </p>
         </div>
         <Button onClick={() => setIsDarkMode(!isDarkMode)} variant="outline" size="icon"
-          className="transition-all duration-300 hover:scale-105" aria-label={isDarkMode ? "Mode clair" : "Mode sombre"}>
+          className="self-start sm:self-auto transition-all duration-300 hover:scale-105 flex-shrink-0"
+          aria-label={isDarkMode ? "Mode clair" : "Mode sombre"}>
           <motion.div initial={false} animate={{ rotate: isDarkMode ? 180 : 0 }} transition={{ duration: 0.3 }}>
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </motion.div>
         </Button>
       </motion.div>
@@ -764,8 +767,8 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
                 Activité hebdomadaire
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 relative">
-              <ResponsiveContainer width="100%" height={280}>
+            <CardContent className="pt-4 sm:pt-6 relative">
+              <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={weeklyProgressData} id="area-chart-weekly">
                   <defs>
                     <linearGradient id="colorQcmWeekly" x1="0" y1="0" x2="0" y2="1">
@@ -809,7 +812,7 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="pt-6 relative">
+            <CardContent className="pt-4 sm:pt-6 relative">
               <EnhancedDonutChart data={donutData} isDark={isDarkMode} />
             </CardContent>
           </Card>
@@ -940,119 +943,99 @@ function TopCoursesSection({
         />
 
         <CardHeader className="relative pb-2">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-4">
-              {/* Badge score */}
-              <motion.div
-                className="relative flex-shrink-0"
-                whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
-                transition={{ duration: 0.4 }}
-                role="img"
-                aria-label={filterType === "toRedo" ? "Indicateur révision" : "Indicateur réussite"}
-              >
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center relative overflow-hidden" style={{
-                  background: filterType === "toRedo"
-                    ? "linear-gradient(135deg, #dc2626, #ff8f00)"
-                    : "linear-gradient(135deg, #059669, #4f7cff)",
-                  boxShadow: filterType === "toRedo"
-                    ? "0 4px 16px rgba(220,38,38,0.3)"
-                    : "0 4px 16px rgba(5,150,105,0.3)"
+          <div className="flex flex-col gap-4 mb-2">
+            {/* Titre + badge score */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <motion.div className="relative flex-shrink-0"
+                whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }} transition={{ duration: 0.4 }}
+                role="img" aria-label="Score QE">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center relative overflow-hidden" style={{
+                  background: filterType === "toRedo" ? "linear-gradient(135deg, #dc2626, #ff8f00)" : "linear-gradient(135deg, #059669, #4f7cff)",
+                  boxShadow: filterType === "toRedo" ? "0 4px 16px rgba(220,38,38,0.3)" : "0 4px 16px rgba(5,150,105,0.3)"
                 }}>
-                  <motion.div
-                    className="absolute inset-0"
+                  <motion.div className="absolute inset-0"
                     style={{ background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)" }}
                     animate={{ x: ["-100%", "200%"] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
-                  />
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }} />
                   <motion.div className="relative z-10 text-white text-center"
                     animate={{ scale: [1, 1.05, 1], opacity: [0.9, 1, 0.9] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
-                    <div style={{ fontSize: "20px", fontWeight: 700, lineHeight: 1 }}>{avgScore}</div>
-                    <div style={{ fontSize: "9px", fontWeight: 500, opacity: 0.9, letterSpacing: "0.05em" }}>SCORE</div>
+                    <div style={{ fontSize: "18px", fontWeight: 700, lineHeight: 1 }}>{avgScore}</div>
+                    <div style={{ fontSize: "8px", fontWeight: 500, opacity: 0.9, letterSpacing: "0.05em" }}>SCORE</div>
                   </motion.div>
                 </div>
               </motion.div>
-
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[17px] font-bold text-foreground">Score QE®</span>
+                  <span className="text-[15px] sm:text-[17px] font-bold text-foreground">Score QE®</span>
                   <motion.div animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>
-                    {filterType === "toRedo"
-                      ? <Flame size={20} className="text-accent" />
-                      : <Trophy size={20} className="text-success" />}
+                    {filterType === "toRedo" ? <Flame size={18} className="text-accent" /> : <Trophy size={18} className="text-success" />}
                   </motion.div>
                 </div>
+                <p className="text-[11px] sm:text-[12px] text-muted-foreground">
+                  {sortedCourses.length} cours · Affichés: {Math.min(displayCount, sortedCourses.length)}
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Search */}
-              <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px] sm:max-w-[280px]">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            {/* Contrôles — grille 2 cols sur mobile, flex wrap sur sm+ */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
+              {/* Search — pleine largeur sur mobile */}
+              <div className="col-span-2 relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Rechercher un cours..."
-                  className="pl-9 pr-3 py-1.5 rounded-xl bg-muted border-border text-[13px]"
+                  className="pl-9 pr-3 py-1.5 rounded-xl bg-muted border-border text-[13px] w-full"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
 
-              {/* Count toggle */}
+              {/* Affichage count */}
               <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
                 {([5, 10, 15] as const).map((count) => (
-                  <motion.button
-                    key={count}
-                    onClick={() => setDisplayCount(count)}
-                    className={`px-3 py-1.5 text-[13px] transition-all ${
-                      displayCount === count
-                        ? "bg-primary text-primary-foreground font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
+                  <motion.button key={count} onClick={() => setDisplayCount(count)}
+                    className={`flex-1 px-2 sm:px-3 py-1.5 text-[12px] sm:text-[13px] transition-all ${
+                      displayCount === count ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"
                     } ${count !== 15 ? "border-r border-border" : ""}`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
+                    whileTap={{ scale: 0.97 }}>
                     {count}
                   </motion.button>
                 ))}
               </div>
 
-              {/* Filter Jour */}
+              {/* Filtre Jour */}
               <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
                 {(["all", "1", "2"] as const).map((j) => (
-                  <motion.button
-                    key={j}
-                    onClick={() => setFilterJour(j)}
-                    className={`px-3 py-1.5 text-[13px] transition-all ${
-                      filterJour === j
-                        ? "bg-primary text-primary-foreground font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
+                  <motion.button key={j} onClick={() => setFilterJour(j)}
+                    className={`flex-1 px-2 sm:px-3 py-1.5 text-[12px] sm:text-[13px] transition-all ${
+                      filterJour === j ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"
                     } ${j !== "2" ? "border-r border-border" : ""}`}
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  >
+                    whileTap={{ scale: 0.97 }}>
                     {j === "all" ? "Tous" : `J${j}`}
                   </motion.button>
                 ))}
               </div>
 
-              {/* Filter tri */}
+              {/* Filtre tri */}
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-[160px] rounded-xl bg-muted border-border">
+                <SelectTrigger className="rounded-xl bg-muted border-border text-[12px] sm:text-[13px] h-8 sm:h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="toRedo">
-                    <span className="flex items-center gap-2"><RotateCcw size={14} /> À refaire</span>
+                    <span className="flex items-center gap-2"><RotateCcw size={13} /> À refaire</span>
                   </SelectItem>
                   <SelectItem value="mastery">
-                    <span className="flex items-center gap-2"><Trophy size={14} /> Mieux maîtrisés</span>
+                    <span className="flex items-center gap-2"><Trophy size={13} /> Mieux maîtrisés</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
 
-              {/* Filter spécialité */}
-              <Select value={filterSpeciality} onValueChange={(v) => { setFilterSpeciality(v); }}>
-                <SelectTrigger className="w-[175px] rounded-xl bg-muted border-border">
+              {/* Filtre spécialité */}
+              <Select value={filterSpeciality} onValueChange={setFilterSpeciality}>
+                <SelectTrigger className="rounded-xl bg-muted border-border text-[12px] sm:text-[13px] h-8 sm:h-9">
                   <SelectValue placeholder="Toutes spécialités" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1068,14 +1051,13 @@ function TopCoursesSection({
 
         <CardContent className="relative pt-0">
           {/* En-tête colonnes */}
-          <div className="flex items-center px-4 py-2 mb-1 border-b border-border">
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider" style={{ width: "36px" }}>#</span>
-            <span className="flex-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Cours</span>
-            <span className="hidden sm:block text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-center" style={{ width: "80px" }}>QCM</span>
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-right" style={{ width: "140px" }}>
+          <div className="flex items-center px-2 sm:px-4 py-2 mb-1 border-b border-border">
+            <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0" style={{ width: "28px" }}>#</span>
+            <span className="flex-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider ml-2 sm:ml-3">Cours</span>
+            <span className="hidden sm:block text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-center flex-shrink-0" style={{ width: "80px" }}>QCM</span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-right flex-shrink-0 mr-6" style={{ minWidth: "60px" }}>
               {filterType === "toRedo" ? "À refaire" : "Maîtrise"}
             </span>
-            <span style={{ width: "32px" }} />
           </div>
 
           {/* Liste cours */}
@@ -1105,20 +1087,20 @@ function TopCoursesSection({
 
           {/* Footer */}
           <motion.div
-            className="mt-4 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border"
+            className="mt-4 pt-4 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 border-t border-border"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-            <span className="text-[13px] text-muted-foreground">
-              {sortedCourses.length} cours au total · Affichés: {Math.min(displayCount, sortedCourses.length)}
+            <span className="text-[11px] sm:text-[13px] text-muted-foreground">
+              {sortedCourses.length} cours · Affichés: {Math.min(displayCount, sortedCourses.length)}
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {[
-                { color: "bg-red-500 dark:bg-red-400", label: "Critique", textClass: "text-muted-foreground" },
-                { color: "bg-orange-400", label: "Moyen", textClass: "text-muted-foreground" },
-                { color: "bg-green-600 dark:bg-green-500", label: "Bon", textClass: "text-muted-foreground" },
+                { color: "bg-red-500 dark:bg-red-400",   label: "Critique" },
+                { color: "bg-orange-400",                label: "Moyen" },
+                { color: "bg-green-600 dark:bg-green-500", label: "Bon" },
               ].map(item => (
-                <span key={item.label} className="flex items-center gap-1.5 text-[12px]">
-                  <div className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
-                  <span className={item.textClass}>{item.label}</span>
+                <span key={item.label} className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-[12px]">
+                  <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                  <span className="text-muted-foreground">{item.label}</span>
                 </span>
               ))}
             </div>
@@ -1148,55 +1130,29 @@ function StatsAndRadarSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col lg:flex-row items-center gap-8">
-              <div className="flex-shrink-0">
-                <CircularProgress value={successPercentage} size={180} strokeWidth={16} label="Précision globale" isDark={isDark} />
-              </div>
-              <div className="flex-1 w-full">
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    {
-                      icon: <CheckCircle className="text-primary" size={16} />,
-                      label: "Complétés", value: `${qcmStats.completed} / ${qcmStats.totalQcm}`,
-                      progress: (qcmStats.completed / qcmStats.totalQcm) * 100,
-                      className: "from-primary/10 to-transparent border-primary/30"
-                    },
-                    {
-                      icon: <ListChecks className="text-success" size={16} />,
-                      label: "Séries", value: `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`,
-                      progress: (qcmStats.seriesCompleted / qcmStats.totalSeries) * 100,
-                      className: "from-success/10 to-transparent border-success/30"
-                    },
-                    {
-                      icon: <TrendingUp className="text-success" size={16} />,
-                      label: "Meilleur", sub: qcmStats.bestObjective,
-                      value: `${qcmStats.bestObjectivePercent}%`,
-                      className: "from-success/10 to-transparent border-success/30"
-                    },
-                    {
-                      icon: <TrendingDown className="text-destructive" size={16} />,
-                      label: "À améliorer", sub: qcmStats.worstObjective,
-                      value: `${qcmStats.worstObjectivePercent}%`,
-                      className: "from-destructive/10 to-transparent border-destructive/30"
-                    },
-                  ].map((stat, idx) => (
-                    <motion.div key={stat.label} whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
-                      <Card className={`bg-gradient-to-br ${stat.className} relative overflow-hidden`}>
-                        <CardContent className="p-4 relative">
-                          <div className="flex items-center gap-2 mb-2">
-                            {stat.icon}
-                            <span className="text-sm text-muted-foreground">{stat.label}</span>
-                          </div>
-                          {stat.sub && <p className="text-sm truncate text-foreground">{stat.sub}</p>}
-                          <p className="text-xl font-semibold text-foreground">{stat.value}</p>
-                          {stat.progress !== undefined && (
-                            <Progress value={stat.progress} className="mt-2 h-1" />
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
+            <div className="flex flex-col items-center gap-6 sm:gap-8">
+              {/* Circular progress — centré sur mobile */}
+              <CircularProgress value={successPercentage} size={150} strokeWidth={14} label="Précision globale" isDark={isDark} />
+              {/* KPI grid — 2 cols sur tous les écrans */}
+              <div className="w-full grid grid-cols-2 gap-3">
+                {[
+                  { icon: <CheckCircle className="text-primary" size={15} />,     label: "Complétés",   value: `${qcmStats.completed} / ${qcmStats.totalQcm}`,   progress: (qcmStats.completed / qcmStats.totalQcm) * 100,     className: "from-primary/10 to-transparent border-primary/30" },
+                  { icon: <ListChecks className="text-success" size={15} />,      label: "Séries",      value: `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`, progress: (qcmStats.seriesCompleted / qcmStats.totalSeries) * 100, className: "from-success/10 to-transparent border-success/30" },
+                  { icon: <TrendingUp className="text-success" size={15} />,      label: "Meilleur",    sub: qcmStats.bestObjective,  value: `${qcmStats.bestObjectivePercent}%`,  className: "from-success/10 to-transparent border-success/30" },
+                  { icon: <TrendingDown className="text-destructive" size={15} />, label: "À améliorer", sub: qcmStats.worstObjective, value: `${qcmStats.worstObjectivePercent}%`, className: "from-destructive/10 to-transparent border-destructive/30" },
+                ].map((stat) => (
+                  <Card key={stat.label} className={`bg-gradient-to-br ${stat.className} relative overflow-hidden`}>
+                    <CardContent className="p-3 sm:p-4 relative">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        {stat.icon}
+                        <span className="text-xs sm:text-sm text-muted-foreground">{stat.label}</span>
+                      </div>
+                      {stat.sub && <p className="text-xs truncate text-foreground mb-0.5">{stat.sub}</p>}
+                      <p className="text-lg sm:text-xl font-semibold text-foreground">{stat.value}</p>
+                      {stat.progress !== undefined && <Progress value={stat.progress} className="mt-1.5 h-1" />}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           </CardContent>
@@ -1241,7 +1197,7 @@ function StatsAndRadarSection({
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div style={{ width: '100%', height: 350 }}>
+            <div style={{ width: '100%', height: 280 }} className="sm:!h-[350px]">
               {radarData.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                   Aucune donnée disponible pour cette sélection
