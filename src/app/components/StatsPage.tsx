@@ -943,9 +943,11 @@ function TopCoursesSection({
         />
 
         <CardHeader className="relative pb-2">
-          <div className="flex flex-col gap-4 mb-2">
-            {/* Titre + badge score */}
-            <div className="flex items-center gap-3 sm:gap-4">
+          {/* Desktop: titre gauche + contrôles droite en ligne | Mobile: empilé */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+
+            {/* Badge score + titre */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
               <motion.div className="relative flex-shrink-0"
                 whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }} transition={{ duration: 0.4 }}
                 role="img" aria-label="Score QE">
@@ -973,78 +975,76 @@ function TopCoursesSection({
                   </motion.div>
                 </div>
                 <p className="text-[11px] sm:text-[12px] text-muted-foreground">
-                  {sortedCourses.length} cours · Affichés: {Math.min(displayCount, sortedCourses.length)}
+                  {sortedCourses.length} cours · {Math.min(displayCount, sortedCourses.length)} affichés
                 </p>
               </div>
             </div>
 
-            {/* Contrôles — grille 2 cols sur mobile, flex wrap sur sm+ */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
-              {/* Search — pleine largeur sur mobile */}
-              <div className="col-span-2 relative">
+            {/* Contrôles
+                – Mobile  (<lg) : search pleine largeur, puis 2 lignes de 2 éléments
+                – Desktop (lg+) : tout en une seule ligne flex               */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+              {/* Search */}
+              <div className="relative w-full lg:w-auto lg:min-w-[200px] lg:max-w-[260px]">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher un cours..."
+                <Input type="text" placeholder="Rechercher un cours..."
                   className="pl-9 pr-3 py-1.5 rounded-xl bg-muted border-border text-[13px] w-full"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
+                  value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
 
-              {/* Affichage count */}
-              <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
-                {([5, 10, 15] as const).map((count) => (
-                  <motion.button key={count} onClick={() => setDisplayCount(count)}
-                    className={`flex-1 px-2 sm:px-3 py-1.5 text-[12px] sm:text-[13px] transition-all ${
-                      displayCount === count ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"
-                    } ${count !== 15 ? "border-r border-border" : ""}`}
-                    whileTap={{ scale: 0.97 }}>
-                    {count}
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Filtre Jour */}
-              <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
-                {(["all", "1", "2"] as const).map((j) => (
-                  <motion.button key={j} onClick={() => setFilterJour(j)}
-                    className={`flex-1 px-2 sm:px-3 py-1.5 text-[12px] sm:text-[13px] transition-all ${
-                      filterJour === j ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"
-                    } ${j !== "2" ? "border-r border-border" : ""}`}
-                    whileTap={{ scale: 0.97 }}>
-                    {j === "all" ? "Tous" : `J${j}`}
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Filtre tri */}
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="rounded-xl bg-muted border-border text-[12px] sm:text-[13px] h-8 sm:h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="toRedo">
-                    <span className="flex items-center gap-2"><RotateCcw size={13} /> À refaire</span>
-                  </SelectItem>
-                  <SelectItem value="mastery">
-                    <span className="flex items-center gap-2"><Trophy size={13} /> Mieux maîtrisés</span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Filtre spécialité */}
-              <Select value={filterSpeciality} onValueChange={setFilterSpeciality}>
-                <SelectTrigger className="rounded-xl bg-muted border-border text-[12px] sm:text-[13px] h-8 sm:h-9">
-                  <SelectValue placeholder="Toutes spécialités" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes spécialités</SelectItem>
-                  {allSpecialities.map((s: string) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+              {/* Ligne 2 mobile / inline desktop : count + jour */}
+              <div className="flex items-center gap-2 lg:gap-3">
+                <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
+                  {([5, 10, 15] as const).map((count) => (
+                    <motion.button key={count} onClick={() => setDisplayCount(count)}
+                      className={`px-3 py-1.5 text-[13px] transition-all ${
+                        displayCount === count ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                      } ${count !== 15 ? "border-r border-border" : ""}`}
+                      whileTap={{ scale: 0.97 }}>
+                      {count}
+                    </motion.button>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+                <div className="flex rounded-xl overflow-hidden border border-border bg-muted">
+                  {(["all", "1", "2"] as const).map((j) => (
+                    <motion.button key={j} onClick={() => setFilterJour(j)}
+                      className={`px-3 py-1.5 text-[13px] transition-all ${
+                        filterJour === j ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                      } ${j !== "2" ? "border-r border-border" : ""}`}
+                      whileTap={{ scale: 0.97 }}>
+                      {j === "all" ? "Tous" : `J${j}`}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ligne 3 mobile / inline desktop : 2 selects */}
+              <div className="flex items-center gap-2 lg:gap-3">
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="w-[150px] lg:w-[160px] rounded-xl bg-muted border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="toRedo">
+                      <span className="flex items-center gap-2"><RotateCcw size={13} /> À refaire</span>
+                    </SelectItem>
+                    <SelectItem value="mastery">
+                      <span className="flex items-center gap-2"><Trophy size={13} /> Mieux maîtrisés</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterSpeciality} onValueChange={setFilterSpeciality}>
+                  <SelectTrigger className="w-[155px] lg:w-[175px] rounded-xl bg-muted border-border">
+                    <SelectValue placeholder="Toutes spécialités" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes spécialités</SelectItem>
+                    {allSpecialities.map((s: string) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -1052,12 +1052,13 @@ function TopCoursesSection({
         <CardContent className="relative pt-0">
           {/* En-tête colonnes */}
           <div className="flex items-center px-2 sm:px-4 py-2 mb-1 border-b border-border">
-            <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0" style={{ width: "28px" }}>#</span>
-            <span className="flex-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider ml-2 sm:ml-3">Cours</span>
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0" style={{ width: "36px" }}>#</span>
+            <span className="flex-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Cours</span>
             <span className="hidden sm:block text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-center flex-shrink-0" style={{ width: "80px" }}>QCM</span>
-            <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-right flex-shrink-0 mr-6" style={{ minWidth: "60px" }}>
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider text-right flex-shrink-0" style={{ width: "140px" }}>
               {filterType === "toRedo" ? "À refaire" : "Maîtrise"}
             </span>
+            <span style={{ width: "32px" }} />
           </div>
 
           {/* Liste cours */}
@@ -1130,29 +1131,35 @@ function StatsAndRadarSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center gap-6 sm:gap-8">
-              {/* Circular progress — centré sur mobile */}
-              <CircularProgress value={successPercentage} size={150} strokeWidth={14} label="Précision globale" isDark={isDark} />
-              {/* KPI grid — 2 cols sur tous les écrans */}
-              <div className="w-full grid grid-cols-2 gap-3">
-                {[
-                  { icon: <CheckCircle className="text-primary" size={15} />,     label: "Complétés",   value: `${qcmStats.completed} / ${qcmStats.totalQcm}`,   progress: (qcmStats.completed / qcmStats.totalQcm) * 100,     className: "from-primary/10 to-transparent border-primary/30" },
-                  { icon: <ListChecks className="text-success" size={15} />,      label: "Séries",      value: `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`, progress: (qcmStats.seriesCompleted / qcmStats.totalSeries) * 100, className: "from-success/10 to-transparent border-success/30" },
-                  { icon: <TrendingUp className="text-success" size={15} />,      label: "Meilleur",    sub: qcmStats.bestObjective,  value: `${qcmStats.bestObjectivePercent}%`,  className: "from-success/10 to-transparent border-success/30" },
-                  { icon: <TrendingDown className="text-destructive" size={15} />, label: "À améliorer", sub: qcmStats.worstObjective, value: `${qcmStats.worstObjectivePercent}%`, className: "from-destructive/10 to-transparent border-destructive/30" },
-                ].map((stat) => (
-                  <Card key={stat.label} className={`bg-gradient-to-br ${stat.className} relative overflow-hidden`}>
-                    <CardContent className="p-3 sm:p-4 relative">
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        {stat.icon}
-                        <span className="text-xs sm:text-sm text-muted-foreground">{stat.label}</span>
-                      </div>
-                      {stat.sub && <p className="text-xs truncate text-foreground mb-0.5">{stat.sub}</p>}
-                      <p className="text-lg sm:text-xl font-semibold text-foreground">{stat.value}</p>
-                      {stat.progress !== undefined && <Progress value={stat.progress} className="mt-1.5 h-1" />}
-                    </CardContent>
-                  </Card>
-                ))}
+            {/* Desktop (lg+): circular gauche + grid droite | Mobile: empilé */}
+            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
+              <div className="flex-shrink-0">
+                <CircularProgress value={successPercentage} size={160} strokeWidth={14}
+                  label="Précision globale" isDark={isDark} />
+              </div>
+              <div className="flex-1 w-full">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {[
+                    { icon: <CheckCircle className="text-primary" size={16} />,      label: "Complétés",   value: `${qcmStats.completed} / ${qcmStats.totalQcm}`,         progress: (qcmStats.completed / qcmStats.totalQcm) * 100,         className: "from-primary/10 to-transparent border-primary/30" },
+                    { icon: <ListChecks className="text-success" size={16} />,       label: "Séries",      value: `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`, progress: (qcmStats.seriesCompleted / qcmStats.totalSeries) * 100, className: "from-success/10 to-transparent border-success/30" },
+                    { icon: <TrendingUp className="text-success" size={16} />,       label: "Meilleur",    sub: qcmStats.bestObjective,  value: `${qcmStats.bestObjectivePercent}%`,  className: "from-success/10 to-transparent border-success/30" },
+                    { icon: <TrendingDown className="text-destructive" size={16} />, label: "À améliorer", sub: qcmStats.worstObjective, value: `${qcmStats.worstObjectivePercent}%`, className: "from-destructive/10 to-transparent border-destructive/30" },
+                  ].map((stat) => (
+                    <motion.div key={stat.label} whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <Card className={`bg-gradient-to-br ${stat.className} relative overflow-hidden`}>
+                        <CardContent className="p-3 sm:p-4 relative">
+                          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                            {stat.icon}
+                            <span className="text-xs sm:text-sm text-muted-foreground">{stat.label}</span>
+                          </div>
+                          {stat.sub && <p className="text-xs sm:text-sm truncate text-foreground mb-0.5">{stat.sub}</p>}
+                          <p className="text-lg sm:text-xl font-semibold text-foreground">{stat.value}</p>
+                          {stat.progress !== undefined && <Progress value={stat.progress} className="mt-1.5 sm:mt-2 h-1" />}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
           </CardContent>
