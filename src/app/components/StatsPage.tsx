@@ -452,8 +452,8 @@ const StatCard = ({ icon, label, value, trend, color, onClick }: StatCardProps) 
 );
 
 // --- CircularProgress ---
-const CircularProgress = ({ value, size = 120, strokeWidth = 12, label, isDark = false }:
-  { value: number; size?: number; strokeWidth?: number; label?: string; isDark?: boolean }) => {
+const CircularProgress = ({ value, size = 120, strokeWidth = 12, label, isDark = false, overrideLabel }:
+  { value: number; size?: number; strokeWidth?: number; label?: string; isDark?: boolean; overrideLabel?: string }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (value / 100) * circumference;
@@ -471,9 +471,14 @@ const CircularProgress = ({ value, size = 120, strokeWidth = 12, label, isDark =
           transition={{ duration: 1, ease: "easeOut" }} />
       </svg>
       <div className="absolute flex flex-col items-center justify-center">
-        <motion.span className="text-3xl" style={{ color }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-          <AnimatedCounter value={value} suffix="%" />
+        <motion.span
+          key={overrideLabel ?? "pct"}
+          className="text-2xl font-bold"
+          style={{ color }}
+          initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {overrideLabel ?? <><AnimatedCounter value={value} suffix="%" /></>}
         </motion.span>
         {label && <span className="text-xs text-muted-foreground mt-1">{label}</span>}
       </div>
