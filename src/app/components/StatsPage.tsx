@@ -1085,27 +1085,6 @@ function TopCoursesSection({
               })}
             </AnimatePresence>
           </div>
-
-          {/* Footer */}
-          <motion.div
-            className="mt-4 pt-4 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 border-t border-border"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-            <span className="text-[11px] sm:text-[13px] text-muted-foreground">
-              {sortedCourses.length} cours · Affichés: {Math.min(displayCount, sortedCourses.length)}
-            </span>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {[
-                { color: "bg-red-500 dark:bg-red-400",   label: "Critique" },
-                { color: "bg-orange-400",                label: "Moyen" },
-                { color: "bg-green-600 dark:bg-green-500", label: "Bon" },
-              ].map(item => (
-                <span key={item.label} className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-[12px]">
-                  <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                  <span className="text-muted-foreground">{item.label}</span>
-                </span>
-              ))}
-            </div>
-          </motion.div>
         </CardContent>
       </Card>
     </motion.div>
