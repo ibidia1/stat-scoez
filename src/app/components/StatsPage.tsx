@@ -1097,6 +1097,15 @@ function StatsAndRadarSection({
   setSelectedSpec, selectedCourseForRadar, setSelectedCourseForRadar,
   isSpec, coursesForSubFilter, isDark, itemVariants
 }: any) {
+  // Toggle states
+  const [precisionAsNote, setPrecisionAsNote] = React.useState(false);
+  const [completedAsPct, setCompletedAsPct] = React.useState(false);
+  const [seriesAsPct, setSeriesAsPct] = React.useState(false);
+  const [bestAsNote, setBestAsNote] = React.useState(false);
+  const [worstAsNote, setWorstAsNote] = React.useState(false);
+
+  const pctToNote = (pct: number) => ((pct / 100) * 20).toFixed(1);
+
   return (
     <div className="space-y-4">
       {/* Statistiques QCM */}
@@ -1110,34 +1119,133 @@ function StatsAndRadarSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Desktop (lg+): circular gauche + grid droite | Mobile: empilé */}
             <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
-              <div className="flex-shrink-0">
-                <CircularProgress value={successPercentage} size={160} strokeWidth={14}
-                  label="Précision globale" isDark={isDark} />
+              {/* Précision globale */}
+              <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                <div
+                  className="cursor-pointer select-none"
+                  onClick={() => setPrecisionAsNote(v => !v)}
+                  title="Cliquer pour changer de format"
+                >
+                  <CircularProgress value={successPercentage} size={160} strokeWidth={14}
+                    isDark={isDark}
+                    overrideLabel={precisionAsNote
+                      ? `${pctToNote(successPercentage)}/20`
+                      : undefined
+                    }
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  Précision globale
+                  <span className="text-[10px] opacity-50">(clic)</span>
+                </span>
               </div>
+
               <div className="flex-1 w-full">
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  {[
-                    { icon: <CheckCircle className="text-primary" size={16} />,      label: "Complétés",   value: `${qcmStats.completed} / ${qcmStats.totalQcm}`,         progress: (qcmStats.completed / qcmStats.totalQcm) * 100,         className: "from-primary/10 to-transparent border-primary/30" },
-                    { icon: <ListChecks className="text-success" size={16} />,       label: "Séries",      value: `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`, progress: (qcmStats.seriesCompleted / qcmStats.totalSeries) * 100, className: "from-success/10 to-transparent border-success/30" },
-                    { icon: <TrendingUp className="text-success" size={16} />,       label: "Meilleur",    sub: qcmStats.bestObjective,  value: `${qcmStats.bestObjectivePercent}%`,  className: "from-success/10 to-transparent border-success/30" },
-                    { icon: <TrendingDown className="text-destructive" size={16} />, label: "À améliorer", sub: qcmStats.worstObjective, value: `${qcmStats.worstObjectivePercent}%`, className: "from-destructive/10 to-transparent border-destructive/30" },
-                  ].map((stat) => (
-                    <motion.div key={stat.label} whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
-                      <Card className={`bg-gradient-to-br ${stat.className} relative overflow-hidden`}>
-                        <CardContent className="p-3 sm:p-4 relative">
-                          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-                            {stat.icon}
-                            <span className="text-xs sm:text-sm text-muted-foreground">{stat.label}</span>
-                          </div>
-                          {stat.sub && <p className="text-xs sm:text-sm truncate text-foreground mb-0.5">{stat.sub}</p>}
-                          <p className="text-lg sm:text-xl font-semibold text-foreground">{stat.value}</p>
-                          {stat.progress !== undefined && <Progress value={stat.progress} className="mt-1.5 sm:mt-2 h-1" />}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
+                  {/* QCM Complétés */}
+                  <motion.div whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/30 relative overflow-hidden cursor-pointer"
+                      onClick={() => setCompletedAsPct(v => !v)}>
+                      <CardContent className="p-3 sm:p-4 relative">
+                        <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                          <CheckCircle className="text-primary" size={16} />
+                          <span className="text-xs sm:text-sm text-muted-foreground">QCM complétés</span>
+                        </div>
+                        <motion.p
+                          key={completedAsPct ? "pct" : "raw"}
+                          className="text-lg sm:text-xl font-semibold text-foreground"
+                          initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {completedAsPct
+                            ? `${Math.round((qcmStats.completed / qcmStats.totalQcm) * 100)}%`
+                            : `${qcmStats.completed} / ${qcmStats.totalQcm}`}
+                        </motion.p>
+                        {!completedAsPct && (
+                          <Progress value={(qcmStats.completed / qcmStats.totalQcm) * 100} className="mt-1.5 sm:mt-2 h-1" />
+                        )}
+                        <p className="text-[10px] text-muted-foreground/50 mt-1">clic pour {completedAsPct ? "fraction" : "pourcentage"}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {/* Séries complétées */}
+                  <motion.div whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Card className="bg-gradient-to-br from-success/10 to-transparent border-success/30 relative overflow-hidden cursor-pointer"
+                      onClick={() => setSeriesAsPct(v => !v)}>
+                      <CardContent className="p-3 sm:p-4 relative">
+                        <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                          <ListChecks className="text-success" size={16} />
+                          <span className="text-xs sm:text-sm text-muted-foreground">Séries complétées</span>
+                        </div>
+                        <motion.p
+                          key={seriesAsPct ? "pct" : "raw"}
+                          className="text-lg sm:text-xl font-semibold text-foreground"
+                          initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {seriesAsPct
+                            ? `${Math.round((qcmStats.seriesCompleted / qcmStats.totalSeries) * 100)}%`
+                            : `${qcmStats.seriesCompleted} / ${qcmStats.totalSeries}`}
+                        </motion.p>
+                        {!seriesAsPct && (
+                          <Progress value={(qcmStats.seriesCompleted / qcmStats.totalSeries) * 100} className="mt-1.5 sm:mt-2 h-1" />
+                        )}
+                        <p className="text-[10px] text-muted-foreground/50 mt-1">clic pour {seriesAsPct ? "fraction" : "pourcentage"}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {/* Meilleur */}
+                  <motion.div whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Card className="bg-gradient-to-br from-success/10 to-transparent border-success/30 relative overflow-hidden cursor-pointer"
+                      onClick={() => setBestAsNote(v => !v)}>
+                      <CardContent className="p-3 sm:p-4 relative">
+                        <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                          <TrendingUp className="text-success" size={16} />
+                          <span className="text-xs sm:text-sm text-muted-foreground">Meilleur</span>
+                        </div>
+                        <p className="text-xs sm:text-sm truncate text-foreground mb-0.5">{qcmStats.bestObjective}</p>
+                        <motion.p
+                          key={bestAsNote ? "note" : "pct"}
+                          className="text-lg sm:text-xl font-semibold text-success"
+                          initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {bestAsNote
+                            ? `${pctToNote(qcmStats.bestObjectivePercent)}/20`
+                            : `${qcmStats.bestObjectivePercent}%`}
+                        </motion.p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-1">clic pour {bestAsNote ? "pourcentage" : "note /20"}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {/* À améliorer */}
+                  <motion.div whileHover={{ scale: 1.005 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Card className="bg-gradient-to-br from-destructive/10 to-transparent border-destructive/30 relative overflow-hidden cursor-pointer"
+                      onClick={() => setWorstAsNote(v => !v)}>
+                      <CardContent className="p-3 sm:p-4 relative">
+                        <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                          <TrendingDown className="text-destructive" size={16} />
+                          <span className="text-xs sm:text-sm text-muted-foreground">À améliorer</span>
+                        </div>
+                        <p className="text-xs sm:text-sm truncate text-foreground mb-0.5">{qcmStats.worstObjective}</p>
+                        <motion.p
+                          key={worstAsNote ? "note" : "pct"}
+                          className="text-lg sm:text-xl font-semibold text-destructive"
+                          initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {worstAsNote
+                            ? `${pctToNote(qcmStats.worstObjectivePercent)}/20`
+                            : `${qcmStats.worstObjectivePercent}%`}
+                        </motion.p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-1">clic pour {worstAsNote ? "pourcentage" : "note /20"}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 </div>
               </div>
             </div>
