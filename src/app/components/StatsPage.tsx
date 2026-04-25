@@ -528,7 +528,10 @@ const EnhancedDonutChart = ({ data, isDark }: { data: any[]; isDark: boolean }) 
             activeShape={renderActiveSpecialitySector}
             onMouseEnter={(_, i: number) => setActiveIndex(i)}
             onMouseLeave={() => setActiveIndex(null)}
-            isAnimationActive={false}
+            isAnimationActive={true}
+            animationBegin={200}
+            animationDuration={900}
+            animationEasing="ease-out"
             stroke="none"
           >
             {data.map((_, index) => (
