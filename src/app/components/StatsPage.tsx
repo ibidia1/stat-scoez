@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis,
-  PieChart, Pie, Cell, CartesianGrid, ReferenceLine
+  PieChart, Pie, Cell, CartesianGrid, ReferenceLine, Sector  
 } from "recharts";
 import { 
   Search, Flame, CheckCircle, Clock, TrendingUp, Target, TrendingDown, 
@@ -487,29 +487,87 @@ const CircularProgress = ({ value, size = 120, strokeWidth = 12, label, isDark =
 };
 
 // --- DonutChart ---
+function renderActiveSpecialitySector(props: any) {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  return (
+    <Sector
+      cx={cx}
+      cy={cy}
+      innerRadius={innerRadius}
+      outerRadius={outerRadius + 6}
+      startAngle={startAngle}
+      endAngle={endAngle}
+      fill={fill}
+    />
+  );
+}
+
 const EnhancedDonutChart = ({ data, isDark }: { data: any[]; isDark: boolean }) => {
   const COLORS = isDark
     ? ["#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa", "#fb923c", "#f472b6"]
     : ["#4f7cff", "#059669", "#ff8f00", "#dc2626", "#8b5cf6", "#f97316", "#ec4899"];
+
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const active = activeIndex !== null ? data[activeIndex] : null;
+  const activeColor = activeIndex !== null ? COLORS[activeIndex % COLORS.length] : null;
+
   return (
-    <ResponsiveContainer width="100%" height={220}>
-      <PieChart id="pie-chart-specialty">
-        <Pie key="pie" data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
-          paddingAngle={5} dataKey="value" label={({ percentage }) => `${percentage}%`}>
-          {data.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-        </Pie>
-        <Tooltip key="tooltip"
-          formatter={(value: any, name: any, props: any) => [`${value} QCM (${props.payload.percentage}%)`, name]}
-          contentStyle={{
-            backgroundColor: isDark ? "#334155" : "#ffffff",
-            borderColor: isDark ? "#475569" : "#e2e8f0",
-            borderRadius: "8px"
-          }} />
-      </PieChart>
-    </ResponsiveContainer>
+    <div className="relative" style={{ width: "100%", height: 220 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart id="pie-chart-specialty">
+          <Pie
+            key="pie"
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={90}
+            paddingAngle={5}
+            dataKey="value"
+            activeIndex={activeIndex ?? undefined}
+            activeShape={renderActiveSpecialitySector}
+            onMouseEnter={(_, i: number) => setActiveIndex(i)}
+            onMouseLeave={() => setActiveIndex(null)}
+            isAnimationActive={false}
+            stroke="none"
+          >
+            {data.map((_, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {active && activeColor && (
+            <motion.div
+              key={active.name}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="text-center px-2"
+            >
+              <div
+                className="text-2xl font-bold leading-none tabular-nums"
+                style={{ color: activeColor }}
+              >
+                {active.percentage}%
+              </div>
+              <div className="mt-1 max-w-[130px] text-xs font-medium leading-tight text-muted-foreground">
+                {active.name}
+              </div>
+              <div className="mt-1 text-[11px] font-medium tabular-nums text-muted-foreground/70">
+                {active.value} QCM
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
-
 // --- Composant Principal ---
 interface StatsPageProps {
   theme?: string;
