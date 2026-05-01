@@ -332,6 +332,16 @@ const weeklyProgressData = [
   { day: "Dim", qcm: 0, time: 0 }
 ];
 
+const prevWeeklyProgressData = [
+  { day: "Lun", qcm: 18, time: 2.1 },
+  { day: "Mar", qcm: 22, time: 2.8 },
+  { day: "Mer", qcm: 27, time: 3.2 },
+  { day: "Jeu", qcm: 20, time: 2.5 },
+  { day: "Ven", qcm: 25, time: 3.0 },
+  { day: "Sam", qcm: 30, time: 3.8 },
+  { day: "Dim", qcm: 0, time: 0 }
+];
+
 const mockCourseHistory: { [key: string]: Array<{ date: string; note: number }> } = {
   "ECG de base": [
     { date: "15 Déc", note: 14 }, { date: "22 Déc", note: 16 }, { date: "28 Déc", note: 17 },
@@ -412,7 +422,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: string;
-  trend?: { value: number; isUp: boolean };
+  trend?: { value: number; isUp: boolean; unit?: string };
   color: string;
   onClick?: () => void;
 }
@@ -434,7 +444,7 @@ const StatCard = ({ icon, label, value, trend, color, onClick }: StatCardProps) 
           {trend && (
             <Badge variant={trend.isUp ? "default" : "destructive"} className="gap-1">
               {trend.isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {trend.value}%
+              {trend.value}{trend.unit ?? '%'}
             </Badge>
           )}
         </div>
@@ -646,6 +656,10 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   const weeklyTotalSeconds = weeklyProgressData.reduce((sum, d) => sum + d.time * 3600, 0);
   const weeklyTotalQcm = weeklyProgressData.reduce((sum, d) => sum + d.qcm, 0);
   const avgSecondsPerQcm = weeklyTotalQcm > 0 ? Math.round(weeklyTotalSeconds / weeklyTotalQcm) : 0;
+  const prevWeeklyTotalSeconds = prevWeeklyProgressData.reduce((sum, d) => sum + d.time * 3600, 0);
+  const prevWeeklyTotalQcm = prevWeeklyProgressData.reduce((sum, d) => sum + d.qcm, 0);
+  const prevAvgSecondsPerQcm = prevWeeklyTotalQcm > 0 ? Math.round(prevWeeklyTotalSeconds / prevWeeklyTotalQcm) : 0;
+  const deltaSecondsPerQcm = avgSecondsPerQcm - prevAvgSecondsPerQcm;
   const formatTimePerQcm = (s: number) => s < 60 ? `${s}s` : `${Math.floor(s / 60)}m${s % 60 > 0 ? `${s % 60}s` : ``}`;
 
   const weeklyQcmBySpeciality = [
@@ -822,7 +836,9 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
         <StatCard icon={<BarChart3Icon className="text-accent" size={24} />} label="Total QCM faits"
           value={totalQcm.toString()} color="text-accent" onClick={() => setComparisonMetric("totalQcm")} />
         <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps/QCM"
-          value={formatTimePerQcm(avgSecondsPerQcm)} color="text-success" />
+          value={formatTimePerQcm(avgSecondsPerQcm)}
+          trend={{ value: Math.abs(deltaSecondsPerQcm), isUp: deltaSecondsPerQcm < 0, unit: 's' }}
+          color="text-success" />
       </motion.section>
 
       {/* Graphiques principaux */}
