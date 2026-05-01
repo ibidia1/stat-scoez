@@ -642,7 +642,11 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   const coursesForSubFilter = !isSpec ? mockCourses.filter(c => c.speciality === selectedSpec) : [];
   const totalQcm = mockCourses.reduce((sum, c) => sum + c.qcmDone, 0);
   const weeklyQcm = 160;
-  const progressPercent = Math.round((totalQcm / 5000) * 100);
+
+  const weeklyTotalSeconds = weeklyProgressData.reduce((sum, d) => sum + d.time * 3600, 0);
+  const weeklyTotalQcm = weeklyProgressData.reduce((sum, d) => sum + d.qcm, 0);
+  const avgSecondsPerQcm = weeklyTotalQcm > 0 ? Math.round(weeklyTotalSeconds / weeklyTotalQcm) : 0;
+  const formatTimePerQcm = (s: number) => s < 60 ? `${s}s` : `${Math.floor(s / 60)}m${s % 60 > 0 ? `${s % 60}s` : ``}`;
 
   const weeklyQcmBySpeciality = [
     { name: "Cardiologie-CCV", value: 45 },
@@ -817,8 +821,8 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
           onClick={() => setComparisonMetric("weeklyQcm")} />
         <StatCard icon={<BarChart3Icon className="text-accent" size={24} />} label="Total QCM faits"
           value={totalQcm.toString()} color="text-accent" onClick={() => setComparisonMetric("totalQcm")} />
-        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Progression"
-          value={`${progressPercent}%`} trend={{ value: 5, isUp: true }} color="text-success" />
+        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps/QCM"
+          value={formatTimePerQcm(avgSecondsPerQcm)} color="text-success" />
       </motion.section>
 
       {/* Graphiques principaux */}
