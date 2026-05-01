@@ -686,41 +686,17 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
     visible: { opacity: 1, y: 0 }
   };
 
-  const comparisonMetricInfo: Record<string, {
-    label: string; value: string; average: string; percentile: number;
-    userNum: number; avgNum: number; stdDev: number;
-    formatX: (n: number) => string;
-  }> = {
-    time: {
-      label: "Temps hebdomadaire", value: "14h 30min", average: "12h 15min", percentile: 72,
-      userNum: 14.5, avgNum: 12.25, stdDev: 3.2,
-      formatX: (n) => `${n.toFixed(1)}h`,
-    },
-    weeklyQcm: {
-      label: "QCM hebdomadaires", value: weeklyQcm.toString(), average: "145", percentile: 68,
-      userNum: weeklyQcm, avgNum: 145, stdDev: 35,
-      formatX: (n) => `${Math.round(n)}`,
-    },
-    totalQcm: {
-      label: "Total QCM", value: totalQcm.toString(), average: "1425", percentile: 75,
-      userNum: totalQcm, avgNum: 1425, stdDev: 420,
-      formatX: (n) => `${Math.round(n)}`,
-    },
+  const comparisonMetricInfo: Record<string, { label: string; value: string; average: string; percentile: number }> = {
+    time: { label: "Temps hebdomadaire", value: "14h 30min", average: "12h 15min", percentile: 72 },
+    weeklyQcm: { label: "QCM hebdomadaires", value: weeklyQcm.toString(), average: "145", percentile: 68 },
+    totalQcm: { label: "Total QCM", value: totalQcm.toString(), average: "1425", percentile: 75 },
   };
   const comparisonInfo = comparisonMetric ? comparisonMetricInfo[comparisonMetric] : null;
 
-  const buildGaussianData = (avg: number, stdDev: number, userVal: number) => {
-    const min = Math.max(0, Math.min(avg - 3.2 * stdDev, userVal - 0.5 * stdDev));
-    const max = Math.max(avg + 3.2 * stdDev, userVal + 0.5 * stdDev);
-    const step = (max - min) / 60;
-    const data: Array<{ x: number; y: number }> = [];
-    for (let i = 0; i <= 60; i++) {
-      const x = min + i * step;
-      const y = Math.exp(-0.5 * Math.pow((x - avg) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
-      data.push({ x, y });
-    }
-    return data;
-  };
+  const bellCurveData = Array.from({ length: 101 }, (_, i) => ({
+    x: i,
+    y: Math.exp(-0.5 * Math.pow((i - 50) / 18, 2)),
+  }));
 
   const CourseDetailDialog = () => {
     if (!selectedCourse) return null;
@@ -974,9 +950,7 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
 
       {/* Comparison Dialog */}
       {comparisonMetric && comparisonInfo && (() => {
-        const gaussData = buildGaussianData(comparisonInfo.avgNum, comparisonInfo.stdDev, comparisonInfo.userNum);
         const userColor = isDarkMode ? "#34d399" : "#10b981";
-        const avgColor = isDarkMode ? "#94a3b8" : "#64748b";
         const areaColor = isDarkMode ? "#60a5fa" : "#4f7cff";
         const body = (
           <div className="space-y-5 p-6">
@@ -987,13 +961,12 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
             <div className="rounded-xl overflow-hidden bg-muted border border-border p-3">
               <div className="flex items-center justify-between mb-2 px-1">
                 <span className="text-sm font-semibold text-foreground">Distribution des étudiants</span>
-                <div className="flex items-center gap-3 text-[11px]">
-                  <span className="flex items-center gap-1"><span className="inline-block w-3 h-[2px]" style={{ backgroundColor: userColor }} />Vous</span>
-                  <span className="flex items-center gap-1"><span className="inline-block w-3 h-[2px]" style={{ backgroundColor: avgColor }} />Moy.</span>
-                </div>
+                <span className="text-[11px] flex items-center gap-1">
+                  <span className="inline-block w-3 h-[2px]" style={{ backgroundColor: userColor }} />Vous
+                </span>
               </div>
               <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={gaussData} margin={{ top: 16, right: 12, left: -28, bottom: 4 }}>
+                <AreaChart data={bellCurveData} margin={{ top: 16, right: 12, left: -28, bottom: 4 }}>
                   <defs>
                     <linearGradient id="colorComparison" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={areaColor} stopOpacity={0.8} />
@@ -1001,19 +974,14 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
                     </linearGradient>
                   </defs>
                   <XAxis
-                    dataKey="x" type="number" domain={['dataMin', 'dataMax']}
-                    tickFormatter={comparisonInfo.formatX}
+                    dataKey="x" type="number" domain={[0, 100]} ticks={[0, 25, 50, 75, 100]}
+                    tickFormatter={(v) => `${v}%`}
                     stroke={isDarkMode ? "#94a3b8" : "#64748b"} style={{ fontSize: '11px' }}
                   />
                   <YAxis hide domain={[0, 'dataMax']} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: isDarkMode ? "#334155" : "#ffffff", borderColor: isDarkMode ? "#475569" : "#e2e8f0", borderRadius: "8px" }}
-                    formatter={() => [""]} labelFormatter={(v) => comparisonInfo.formatX(Number(v))}
-                  />
                   <Area type="monotone" dataKey="y" stroke={areaColor} strokeWidth={3} fillOpacity={1} fill="url(#colorComparison)" isAnimationActive={true} />
-                  <ReferenceLine x={comparisonInfo.avgNum} stroke={avgColor} strokeWidth={1} strokeDasharray="3 3" />
-                  <ReferenceLine x={comparisonInfo.userNum} stroke={userColor} strokeWidth={2}
-                    label={{ value: `Vous · ${comparisonInfo.value}`, position: 'top', fill: userColor, fontSize: 11, fontWeight: 600 }} />
+                  <ReferenceLine x={comparisonInfo.percentile} stroke={userColor} strokeWidth={2}
+                    label={{ value: `Vous · ${comparisonInfo.percentile}%`, position: 'top', fill: userColor, fontSize: 11, fontWeight: 600 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
