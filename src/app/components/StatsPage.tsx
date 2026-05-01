@@ -830,15 +830,15 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
         <StatCard icon={<Clock className="text-primary" size={24} />} label="Temps hebdomadaire"
           value="14h 30min" trend={{ value: 12, isUp: true }} color="text-primary"
           onClick={() => setComparisonMetric("time")} />
+        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps / QCM"
+          value={formatTimePerQcm(avgSecondsPerQcm)}
+          trend={{ value: Math.abs(deltaSecondsPerQcm), isUp: deltaSecondsPerQcm < 0, unit: 's' }}
+          color="text-success" />
         <StatCard icon={<CheckCircle className="text-purple-500" size={24} />} label="QCM cette semaine"
           value={weeklyQcm.toString()} trend={{ value: 8, isUp: true }} color="text-purple-500"
           onClick={() => setComparisonMetric("weeklyQcm")} />
         <StatCard icon={<BarChart3Icon className="text-accent" size={24} />} label="Total QCM faits"
           value={totalQcm.toString()} color="text-accent" onClick={() => setComparisonMetric("totalQcm")} />
-        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps/QCM"
-          value={formatTimePerQcm(avgSecondsPerQcm)}
-          trend={{ value: Math.abs(deltaSecondsPerQcm), isUp: deltaSecondsPerQcm < 0, unit: 's' }}
-          color="text-success" />
       </motion.section>
 
       {/* Graphiques principaux */}
