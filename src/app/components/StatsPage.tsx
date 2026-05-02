@@ -332,6 +332,16 @@ const weeklyProgressData = [
   { day: "Dim", qcm: 0, time: 0 }
 ];
 
+const prevWeeklyProgressData = [
+  { day: "Lun", qcm: 18, time: 2.1 },
+  { day: "Mar", qcm: 22, time: 2.8 },
+  { day: "Mer", qcm: 27, time: 3.2 },
+  { day: "Jeu", qcm: 20, time: 2.5 },
+  { day: "Ven", qcm: 25, time: 3.0 },
+  { day: "Sam", qcm: 30, time: 3.8 },
+  { day: "Dim", qcm: 0, time: 0 }
+];
+
 const mockCourseHistory: { [key: string]: Array<{ date: string; note: number }> } = {
   "ECG de base": [
     { date: "15 Déc", note: 14 }, { date: "22 Déc", note: 16 }, { date: "28 Déc", note: 17 },
@@ -412,7 +422,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: string;
-  trend?: { value: number; isUp: boolean };
+  trend?: { value: number; isUp: boolean; unit?: string };
   color: string;
   onClick?: () => void;
 }
@@ -434,7 +444,7 @@ const StatCard = ({ icon, label, value, trend, color, onClick }: StatCardProps) 
           {trend && (
             <Badge variant={trend.isUp ? "default" : "destructive"} className="gap-1">
               {trend.isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {trend.value}%
+              {trend.value}{trend.unit ?? '%'}
             </Badge>
           )}
         </div>
@@ -642,7 +652,15 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
   const coursesForSubFilter = !isSpec ? mockCourses.filter(c => c.speciality === selectedSpec) : [];
   const totalQcm = mockCourses.reduce((sum, c) => sum + c.qcmDone, 0);
   const weeklyQcm = 160;
-  const progressPercent = Math.round((totalQcm / 5000) * 100);
+
+  const weeklyTotalSeconds = weeklyProgressData.reduce((sum, d) => sum + d.time * 3600, 0);
+  const weeklyTotalQcm = weeklyProgressData.reduce((sum, d) => sum + d.qcm, 0);
+  const avgSecondsPerQcm = weeklyTotalQcm > 0 ? Math.round(weeklyTotalSeconds / weeklyTotalQcm) : 0;
+  const prevWeeklyTotalSeconds = prevWeeklyProgressData.reduce((sum, d) => sum + d.time * 3600, 0);
+  const prevWeeklyTotalQcm = prevWeeklyProgressData.reduce((sum, d) => sum + d.qcm, 0);
+  const prevAvgSecondsPerQcm = prevWeeklyTotalQcm > 0 ? Math.round(prevWeeklyTotalSeconds / prevWeeklyTotalQcm) : 0;
+  const deltaSecondsPerQcm = avgSecondsPerQcm - prevAvgSecondsPerQcm;
+  const formatTimePerQcm = (s: number) => s < 60 ? `${s}s` : `${Math.floor(s / 60)}m${s % 60 > 0 ? `${s % 60}s` : ``}`;
 
   const weeklyQcmBySpeciality = [
     { name: "Cardiologie-CCV", value: 45 },
@@ -668,12 +686,46 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
     visible: { opacity: 1, y: 0 }
   };
 
-  const comparisonMetricInfo: Record<string, { label: string; value: string; average: string; percentile: number }> = {
-    time: { label: "Temps hebdomadaire", value: "14h 30min", average: "12h 15min", percentile: 72 },
-    weeklyQcm: { label: "QCM hebdomadaires", value: weeklyQcm.toString(), average: "145", percentile: 68 },
-    totalQcm: { label: "Total QCM", value: totalQcm.toString(), average: "1425", percentile: 75 }
+  const comparisonMetricInfo: Record<string, {
+    label: string; value: string; average: string; percentile: number;
+    userNum: number; avgNum: number; stdDev: number;
+    formatX: (n: number) => string;
+  }> = {
+    time: {
+      label: "Temps hebdomadaire", value: "14h 30min", average: "12h 15min", percentile: 72,
+      userNum: 14.5, avgNum: 12.25, stdDev: 3.2,
+      formatX: (n) => `${n.toFixed(1)}h`,
+    },
+    weeklyQcm: {
+      label: "QCM hebdomadaires", value: weeklyQcm.toString(), average: "145", percentile: 68,
+      userNum: weeklyQcm, avgNum: 145, stdDev: 35,
+      formatX: (n) => `${Math.round(n)}`,
+    },
+    totalQcm: {
+      label: "Total QCM", value: totalQcm.toString(), average: "1425", percentile: 75,
+      userNum: totalQcm, avgNum: 1425, stdDev: 420,
+      formatX: (n) => `${Math.round(n)}`,
+    },
+    tempsQcm: {
+      label: "Temps / QCM", value: formatTimePerQcm(avgSecondsPerQcm), average: formatTimePerQcm(390), percentile: 63,
+      userNum: avgSecondsPerQcm, avgNum: 390, stdDev: 80,
+      formatX: (n) => n < 60 ? `${Math.round(n)}s` : `${Math.floor(n / 60)}m${Math.round(n % 60) > 0 ? `${Math.round(n % 60)}s` : ''}`,
+    },
   };
   const comparisonInfo = comparisonMetric ? comparisonMetricInfo[comparisonMetric] : null;
+
+  const buildGaussianData = (avg: number, stdDev: number, userVal: number) => {
+    const min = Math.max(0, Math.min(avg - 3.2 * stdDev, userVal - 0.5 * stdDev));
+    const max = Math.max(avg + 3.2 * stdDev, userVal + 0.5 * stdDev);
+    const step = (max - min) / 60;
+    const data: Array<{ x: number; y: number }> = [];
+    for (let i = 0; i <= 60; i++) {
+      const x = min + i * step;
+      const y = Math.exp(-0.5 * Math.pow((x - avg) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
+      data.push({ x, y });
+    }
+    return data;
+  };
 
   const CourseDetailDialog = () => {
     if (!selectedCourse) return null;
@@ -812,13 +864,15 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
         <StatCard icon={<Clock className="text-primary" size={24} />} label="Temps hebdomadaire"
           value="14h 30min" trend={{ value: 12, isUp: true }} color="text-primary"
           onClick={() => setComparisonMetric("time")} />
+        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps / QCM"
+          value={formatTimePerQcm(avgSecondsPerQcm)}
+          trend={{ value: Math.abs(deltaSecondsPerQcm), isUp: deltaSecondsPerQcm < 0, unit: 's' }}
+          color="text-success" onClick={() => setComparisonMetric("tempsQcm")} />
         <StatCard icon={<CheckCircle className="text-purple-500" size={24} />} label="QCM cette semaine"
           value={weeklyQcm.toString()} trend={{ value: 8, isUp: true }} color="text-purple-500"
           onClick={() => setComparisonMetric("weeklyQcm")} />
         <StatCard icon={<BarChart3Icon className="text-accent" size={24} />} label="Total QCM faits"
           value={totalQcm.toString()} color="text-accent" onClick={() => setComparisonMetric("totalQcm")} />
-        <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Progression"
-          value={`${progressPercent}%`} trend={{ value: 5, isUp: true }} color="text-success" />
       </motion.section>
 
       {/* Graphiques principaux */}
@@ -924,25 +978,61 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
       />
 
       {/* Comparison Dialog */}
-      {comparisonMetric && comparisonInfo && (
-        isMobile ? (
+      {comparisonMetric && comparisonInfo && (() => {
+        const gaussData = buildGaussianData(comparisonInfo.avgNum, comparisonInfo.stdDev, comparisonInfo.userNum);
+        const userColor = isDarkMode ? "#34d399" : "#10b981";
+        const avgColor = isDarkMode ? "#94a3b8" : "#64748b";
+        const areaColor = isDarkMode ? "#60a5fa" : "#4f7cff";
+        const topPct = 100 - comparisonInfo.percentile;
+        const body = (
+          <div className="space-y-5 p-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Votre score</p><p className="text-2xl text-primary">{comparisonInfo.value}</p></CardContent></Card>
+              <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Moyenne</p><p className="text-2xl text-muted-foreground">{comparisonInfo.average}</p></CardContent></Card>
+            </div>
+            <div className="rounded-xl overflow-hidden bg-muted border border-border p-3">
+              <div className="flex justify-center mb-3">
+                <span
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-base font-bold shadow-lg"
+                  style={{ backgroundColor: `${userColor}22`, color: userColor, border: `1.5px solid ${userColor}66` }}
+                >
+                  <Trophy size={16} /> Top {topPct}%
+                </span>
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <AreaChart data={gaussData} margin={{ top: 24, right: 12, left: -28, bottom: 4 }}>
+                  <defs>
+                    <linearGradient id="colorComparison" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={areaColor} stopOpacity={0.8} />
+                      <stop offset="95%" stopColor={areaColor} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="x" type="number" domain={['dataMin', 'dataMax']}
+                    tickFormatter={comparisonInfo.formatX}
+                    stroke={isDarkMode ? "#94a3b8" : "#64748b"} style={{ fontSize: '11px' }}
+                  />
+                  <YAxis hide domain={[0, 'dataMax']} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: isDarkMode ? "#334155" : "#ffffff", borderColor: isDarkMode ? "#475569" : "#e2e8f0", borderRadius: "8px" }}
+                    formatter={() => [""]} labelFormatter={(v) => comparisonInfo.formatX(Number(v))}
+                  />
+                  <Area type="monotone" dataKey="y" stroke={areaColor} strokeWidth={3} fillOpacity={1} fill="url(#colorComparison)" isAnimationActive={true} />
+                  <ReferenceLine x={comparisonInfo.userNum} stroke={userColor} strokeWidth={2}
+                    label={{ value: `Vous · ${comparisonInfo.value}`, position: 'top', fill: userColor, fontSize: 11, fontWeight: 600 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+        return isMobile ? (
           <Drawer open={!!comparisonMetric} onOpenChange={() => setComparisonMetric(null)}>
             <DrawerContent>
               <DrawerHeader>
                 <DrawerTitle>Comparaison avec vos pairs</DrawerTitle>
                 <DrawerDescription>{comparisonInfo.label}</DrawerDescription>
               </DrawerHeader>
-              <div className="space-y-6 p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Votre score</p><p className="text-2xl text-primary">{comparisonInfo.value}</p></CardContent></Card>
-                  <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Moyenne</p><p className="text-2xl text-muted-foreground">{comparisonInfo.average}</p></CardContent></Card>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2"><span>Votre percentile</span><span className="text-primary">{comparisonInfo.percentile}%</span></div>
-                  <Progress value={comparisonInfo.percentile} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Vous êtes dans le top {100 - comparisonInfo.percentile}% des étudiants</p>
-                </div>
-              </div>
+              {body}
             </DrawerContent>
           </Drawer>
         ) : (
@@ -952,21 +1042,11 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
                 <DialogTitle>Comparaison avec vos pairs</DialogTitle>
                 <DialogDescription>{comparisonInfo.label}</DialogDescription>
               </DialogHeader>
-              <div className="space-y-6 p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Votre score</p><p className="text-2xl text-primary">{comparisonInfo.value}</p></CardContent></Card>
-                  <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Moyenne</p><p className="text-2xl text-muted-foreground">{comparisonInfo.average}</p></CardContent></Card>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2"><span>Votre percentile</span><span className="text-primary">{comparisonInfo.percentile}%</span></div>
-                  <Progress value={comparisonInfo.percentile} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Vous êtes dans le top {100 - comparisonInfo.percentile}% des étudiants</p>
-                </div>
-              </div>
+              {body}
             </DialogContent>
           </Dialog>
-        )
-      )}
+        );
+      })()}
 
       <CourseDetailDialog />
     </motion.div>
