@@ -990,11 +990,11 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
               <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Votre score</p><p className="text-2xl text-primary">{comparisonInfo.value}</p></CardContent></Card>
               <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Moyenne</p><p className="text-2xl text-muted-foreground">{comparisonInfo.average}</p></CardContent></Card>
             </div>
-            <div className="relative rounded-xl overflow-hidden bg-muted border border-border p-3">
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10 }}>
+            <div className="rounded-xl overflow-hidden bg-muted border border-border p-3">
+              <div className="flex justify-center mb-3">
                 <span
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-base font-bold shadow-lg"
-                  style={{ backgroundColor: `${userColor}22`, color: userColor, border: `1.5px solid ${userColor}66`, backdropFilter: 'blur(4px)' }}
+                  style={{ backgroundColor: `${userColor}22`, color: userColor, border: `1.5px solid ${userColor}66` }}
                 >
                   <Trophy size={16} /> Top {topPct}%
                 </span>
