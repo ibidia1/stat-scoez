@@ -706,6 +706,11 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
       userNum: totalQcm, avgNum: 1425, stdDev: 420,
       formatX: (n) => `${Math.round(n)}`,
     },
+    tempsQcm: {
+      label: "Temps / QCM", value: formatTimePerQcm(avgSecondsPerQcm), average: formatTimePerQcm(390), percentile: 63,
+      userNum: avgSecondsPerQcm, avgNum: 390, stdDev: 80,
+      formatX: (n) => n < 60 ? `${Math.round(n)}s` : `${Math.floor(n / 60)}m${Math.round(n % 60) > 0 ? `${Math.round(n % 60)}s` : ''}`,
+    },
   };
   const comparisonInfo = comparisonMetric ? comparisonMetricInfo[comparisonMetric] : null;
 
@@ -862,7 +867,7 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
         <StatCard icon={<TrendingUp className="text-success" size={24} />} label="Temps / QCM"
           value={formatTimePerQcm(avgSecondsPerQcm)}
           trend={{ value: Math.abs(deltaSecondsPerQcm), isUp: deltaSecondsPerQcm < 0, unit: 's' }}
-          color="text-success" />
+          color="text-success" onClick={() => setComparisonMetric("tempsQcm")} />
         <StatCard icon={<CheckCircle className="text-purple-500" size={24} />} label="QCM cette semaine"
           value={weeklyQcm.toString()} trend={{ value: 8, isUp: true }} color="text-purple-500"
           onClick={() => setComparisonMetric("weeklyQcm")} />
@@ -986,13 +991,12 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
               <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground mb-1">Moyenne</p><p className="text-2xl text-muted-foreground">{comparisonInfo.average}</p></CardContent></Card>
             </div>
             <div className="relative rounded-xl overflow-hidden bg-muted border border-border p-3">
-              <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-sm font-semibold text-foreground">Distribution des étudiants</span>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10 }}>
                 <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                  style={{ backgroundColor: `${userColor}22`, color: userColor, border: `1px solid ${userColor}55` }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-base font-bold shadow-lg"
+                  style={{ backgroundColor: `${userColor}22`, color: userColor, border: `1.5px solid ${userColor}66`, backdropFilter: 'blur(4px)' }}
                 >
-                  <Trophy size={11} /> Top {topPct}%
+                  <Trophy size={16} /> Top {topPct}%
                 </span>
               </div>
               <ResponsiveContainer width="100%" height={180}>
@@ -1014,8 +1018,6 @@ export default function StatsPage({ theme = "light" }: StatsPageProps) {
                     formatter={() => [""]} labelFormatter={(v) => comparisonInfo.formatX(Number(v))}
                   />
                   <Area type="monotone" dataKey="y" stroke={areaColor} strokeWidth={3} fillOpacity={1} fill="url(#colorComparison)" isAnimationActive={true} />
-                  <ReferenceLine x={comparisonInfo.avgNum} stroke={avgColor} strokeWidth={1} strokeDasharray="3 3"
-                    label={{ value: `Moy. · ${comparisonInfo.average}`, position: 'insideTopLeft', fill: avgColor, fontSize: 10 }} />
                   <ReferenceLine x={comparisonInfo.userNum} stroke={userColor} strokeWidth={2}
                     label={{ value: `Vous · ${comparisonInfo.value}`, position: 'top', fill: userColor, fontSize: 11, fontWeight: 600 }} />
                 </AreaChart>
